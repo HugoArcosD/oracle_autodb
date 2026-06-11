@@ -24,8 +24,8 @@ output "connection_strings" {
     high      = oci_database_autonomous_database.poc.connection_strings[0].high
     medium    = oci_database_autonomous_database.poc.connection_strings[0].medium
     low       = oci_database_autonomous_database.poc.connection_strings[0].low
-    tp        = oci_database_autonomous_database.poc.connection_strings[0].tp
-    tpurgent  = oci_database_autonomous_database.poc.connection_strings[0].tpurgent
+    tp        = oci_database_autonomous_database.poc.connection_strings[0].all_connection_strings["TP"]
+    tpurgent  = oci_database_autonomous_database.poc.connection_strings[0].all_connection_strings["TPURGENT"]
   }
 }
 

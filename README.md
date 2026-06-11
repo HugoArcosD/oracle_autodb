@@ -1,121 +1,121 @@
 # OCI Autonomous Database with Terraform
 
-Terraform configuration para provisionar una base de datos Oracle Autonomous Database (Always Free Tier) en OCI.
+Terraform configuration to provision an Oracle Autonomous Database (Always Free Tier) on OCI.
 
-## Requisitos
+## Requirements
 
 - Terraform >= 1.x
-- OCI CLI configurado en tu máquina (con credenciales)
-- Cuenta OCI con acceso a Always Free Tier
-- Python 3.7+ (para scripts de conexión)
+- OCI CLI configured on your machine (with credentials)
+- OCI account with access to Always Free Tier
+- Python 3.7+ (for connection scripts)
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
 .
-├── main.tf              # Recursos principales (base de datos + compartment)
-├── provider.tf          # Configuración del proveedor OCI
-├── variables.tf         # Declaración de variables
-├── outputs.tf           # Outputs (conexión strings, etc.)
-├── terraform.tfvars     # ⚠️ NO está en el repo (contiene credenciales)
-├── test_conn.py         # Script para probar conexión desde Python
-├── query_dual.py        # Script de ejemplo para ejecutar queries
-├── Wallet_POCDB/        # ⚠️ NO está en el repo (certificados SSL)
-└── README.md            # Este archivo
+├── main.tf              # Main resources (database + compartment)
+├── provider.tf          # OCI provider configuration
+├── variables.tf         # Variable declarations
+├── outputs.tf           # Outputs (connection strings, etc.)
+├── terraform.tfvars     # ⚠️ NOT in the repo (contains credentials)
+├── test_conn.py         # Script to test connection from Python
+├── query_dual.py        # Example script to execute queries
+├── Wallet_POCDB/        # ⚠️ NOT in the repo (SSL certificates)
+└── README.md            # This file
 ```
 
-## Configuración Inicial
+## Initial Configuration
 
-### 1. Clonar el repositorio
+### 1. Clone the repository
 ```bash
-git clone https://github.com/TU_USUARIO/oracle_autodb.git
+git clone https://github.com/HugoArcosD/oracle_autodb.git
 cd oracle_autodb
 ```
 
-### 2. Obtener las credenciales de OCI
-Necesitas tu archivo de configuración de OCI CLI:
+### 2. Get OCI credentials
+You need your OCI CLI configuration file:
 ```bash
 cat ~/.oci/config
 ```
 
-Necesitarás los siguientes valores:
-- `tenancy`: OCID de tu tenancy
-- `user`: OCID de tu usuario
-- `fingerprint`: Fingerprint de tu API key
-- `region`: Región (ej. eu-frankfurt-1)
-- `key_file`: Ruta a tu private key PEM
+You will need the following values:
+- `tenancy`: OCID of your tenancy
+- `user`: OCID of your user
+- `fingerprint`: Fingerprint of your API key
+- `region`: Region (e.g. eu-frankfurt-1)
+- `key_file`: Path to your private key PEM
 
-### 3. Descargar el Wallet de la Base de Datos
+### 3. Download the Database Wallet
 
-Después de crear la base de datos (primer `terraform apply`), descarga el wallet desde OCI Console:
-1. Autonomous Database → Tu base de datos → DB Connection
+After creating the database (first `terraform apply`), download the wallet from OCI Console:
+1. Autonomous Database → Your database → DB Connection
 2. Download Client Credentials (Wallet)
-3. Descomprime el wallet en `./Wallet_POCDB/`
+3. Decompress the wallet into `./Wallet_POCDB/`
 
 ```bash
 unzip Wallet_POCDB.zip -d ./Wallet_POCDB/
 ```
 
-### 4. Crear `terraform.tfvars`
+### 4. Create `terraform.tfvars`
 
-Crea un archivo `terraform.tfvars` en la raíz del proyecto (NO lo hagas commit):
+Create a `terraform.tfvars` file in the project root (do NOT commit it):
 
 ```hcl
 tenancy_ocid     = "ocid1.tenancy.oc1..aaaaaaaacwrzupbdnu6a3vcua56liklvd44w4zehpfekuy5cfifruidkzm7q"
 user_ocid        = "ocid1.user.oc1..aaaaaaaartkwuxk63tu5cey24kwodwlmu5nab3g5vpbtubwsme5ieuk2xw6a"
 fingerprint      = "96:7f:bd:02:9a:bd:34:8c:51:96:fb:7a:85:3e:d0:34"
 region           = "eu-frankfurt-1"
-private_key_path = "/ruta/a/tu/private_key.pem"
-db_password      = "TuContraseñaSegura123!"  # Mínimo 12 caracteres
+private_key_path = "/path/to/your/private_key.pem"
+db_password      = "YourSecurePassword123!"  # Minimum 12 characters
 ```
 
-Reemplaza los valores con los tuyos de OCI.
+Replace the values with yours from OCI.
 
-## Desplegar la Base de Datos
+## Deploy the Database
 
-### Inicializar Terraform
+### Initialize Terraform
 ```bash
 terraform init
 ```
 
-### Verificar plan
+### Verify the plan
 ```bash
 terraform plan
 ```
 
-### Crear los recursos
+### Create the resources
 ```bash
 terraform apply
 ```
 
-Terraform creará:
-- Un compartment llamado `terraform-poc`
-- Una base de datos Autonomous Database (Always Free Tier)
+Terraform will create:
+- A compartment named `terraform-poc`
+- An Autonomous Database (Always Free Tier)
 
-## Conectarse a la Base de Datos desde Python
+## Connect to the Database from Python
 
-### Instalar dependencias
+### Install dependencies
 ```bash
 python3 -m venv venv-oracledb
 source venv-oracledb/bin/activate
 pip install oracledb
 ```
 
-### Ejecutar queries de ejemplo
+### Run example queries
 ```bash
 export ORACLE_WALLET_DIR=./Wallet_POCDB
 export DB_USER=admin
-export DB_PASS='TuContraseñaSegura123!'
+export DB_PASS='YourSecurePassword123!'
 python3 query_dual.py
 ```
 
-### Código de ejemplo
+### Example code
 ```python
 import oracledb, os
 
 conn = oracledb.connect(
     user="admin",
-    password="TuContraseñaSegura123!",
+    password="YourSecurePassword123!",
     dsn="pocdb_tp",
     wallet_location="./Wallet_POCDB"
 )
@@ -128,70 +128,75 @@ conn.close()
 
 ## Outputs
 
-Después de `terraform apply`, puedes ver:
+After `terraform apply`, you can view:
 ```bash
 terraform output
 ```
 
-Obtendrás:
-- `db_name`: Nombre de la base de datos (POCDB)
-- `db_state`: Estado actual (AVAILABLE)
+You will get:
+- `db_name`: Database name (POCDB)
+- `db_state`: Current state (AVAILABLE)
+- `connection_strings`: Connection strings for HIGH, MEDIUM, LOW, TP, TPURGENT
+- `sql_dev_web_url`: SQL Developer Web URL
+- `apex_url`: APEX (Oracle Application Express) URL
 
-## Limpiar los Recursos
+## Clean up Resources
 
-Para destruir la base de datos y evitar costos:
+To destroy the database and avoid costs:
 ```bash
 terraform destroy
 ```
 
-## Variables de Entorno Disponibles
+## Available Environment Variables
 
-En `variables.tf` se definen:
-- `tenancy_ocid`: OCID de tu tenancy
-- `user_ocid`: OCID de tu usuario
-- `fingerprint`: Fingerprint de API key
-- `region`: Región de OCI
-- `private_key_path`: Ruta a la clave privada
-- `db_password`: Contraseña del admin (sensible)
+In `variables.tf` are defined:
+- `tenancy_ocid`: OCID of your tenancy
+- `user_ocid`: OCID of your user
+- `fingerprint`: API key fingerprint
+- `region`: OCI region
+- `private_key_path`: Path to the private key
+- `db_password`: Admin password (sensitive)
+- `db_version`: Database version (default: 19c, can be 23ai or 26ai)
 
-## Consideraciones de Seguridad
+## Security Considerations
 
-⚠️ **IMPORTANTE:**
-- **Nunca** hagas commit de `terraform.tfvars` (contiene credenciales)
-- **Nunca** hagas commit de la carpeta `Wallet_POCDB/` (contiene certificados SSL y llaves)
-- **Nunca** hagas commit de archivos `.pem` con tus claves privadas
-- Usa `.gitignore` para excluir estos archivos automáticamente
+⚠️ **IMPORTANT:**
+- **Never** commit `terraform.tfvars` (contains credentials)
+- **Never** commit the `Wallet_POCDB/` folder (contains SSL certificates and keys)
+- **Never** commit `.pem` files with your private keys
+- Use `.gitignore` to automatically exclude these files
 
 ## Troubleshooting
 
-### Error de conexión "DPY-6005"
-Asegúrate de:
-1. El wallet está descargado y en `./Wallet_POCDB/`
-2. Las variables de entorno están exportadas:
+### Connection error "DPY-6005"
+Make sure:
+1. The wallet is downloaded and in `./Wallet_POCDB/`
+2. The environment variables are exported:
    ```bash
    export ORACLE_WALLET_DIR=./Wallet_POCDB
    export DB_USER=admin
-   export DB_PASS='tu_contraseña'
+   export DB_PASS='your_password'
    ```
-3. La base de datos está en estado `AVAILABLE`
+3. The database is in `AVAILABLE` state
 
-### Error de autenticación con OCI
-Verifica:
-1. Tu `terraform.tfvars` tiene los valores correctos de OCI
-2. Tu clave privada está en la ruta indicada y es legible
-3. Tu fingerprint coincide exactamente con el que aparece en OCI Console
+### OCI authentication error
+Check:
+1. Your `terraform.tfvars` has the correct OCI values
+2. Your private key is at the specified path and is readable
+3. Your fingerprint matches exactly what appears in OCI Console
 
-## Referencias
+## References
 
 - [Terraform OCI Provider](https://registry.terraform.io/providers/oracle/oci/latest/docs)
 - [OCI Autonomous Database](https://docs.oracle.com/en-us/iaas/Content/Database/Concepts/adboverview.htm)
 - [Python oracledb Driver](https://python-oracledb.readthedocs.io/)
 - [OCI Free Tier](https://www.oracle.com/cloud/free/)
 
-## Licencia
+## License
 
 MIT
 
-## Contacto
+## Support
 
-Si necesitas ayuda, consulta la documentación oficial de OCI o abre un issue.
+If you need help, consult the official OCI documentation or open an issue.
+
